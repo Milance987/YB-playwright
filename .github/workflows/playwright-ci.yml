@@ -1,0 +1,71 @@
+# @format
+
+name: Playwright CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: true
+      BASE_URL_UI: https://demoqa.com
+      BASE_URL_SAUCE: https://www.saucedemo.com/
+      SAUCE_PASSWORD: secret_sauce
+      SAUCE_STANDARD_USER: standard_user
+      SAUCE_PROBLEM_USER: problem_user
+      BASE_URL_INTERNET: https://the-internet.herokuapp.com
+      BASE_URL_API: https://jsonplaceholder.typicode.com
+      BASE_URL_DUMMYJSON: https://dummyjson.com
+      API_TOKEN: ${{ secrets.API_TOKEN }}
+      PLAYWRIGHT_JUNIT_OUTPUT_NAME: results.xml
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate required CI secrets
+        run: |
+          if [ -z "${API_TOKEN}" ]; then
+            echo "Missing required GitHub secret: API_TOKEN"
+            exit 1
+          fi
+
+      - name: Run Playwright test suite (headless)
+        run: npx playwright test --reporter=list,html,junit
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Playwright raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14

@@ -48,6 +48,19 @@ npx playwright install chromium
 cp .env.example .env
 ```
 
+## CI/CD (GitHub Actions)
+
+- Workflow file: `.github/workflows/playwright-ci.yml`
+- Pipeline runs Playwright in headless mode on push and pull requests.
+- HTML report and raw test results are uploaded as workflow artifacts.
+- Required repository secret for CI: `API_TOKEN`
+
+Set the secret in GitHub:
+
+1. Open repository `Settings`.
+2. Go to `Secrets and variables` -> `Actions`.
+3. Create `New repository secret` with name `API_TOKEN`.
+
 ## Run Tests
 
 Run all tests:
