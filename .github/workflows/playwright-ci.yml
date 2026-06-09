@@ -42,13 +42,6 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Validate required CI secrets
-        run: |
-          if [ -z "${API_TOKEN}" ]; then
-            echo "Missing required GitHub secret: API_TOKEN"
-            exit 1
-          fi
-
       - name: Run Playwright test suite (headless)
         run: npx playwright test --reporter=list,html,junit
 
